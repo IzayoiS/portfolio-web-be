@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"os"
 	model "portfolio-web-be/models"
 
@@ -16,9 +17,12 @@ func AuthUser(email, password string) (*model.User, error) {
 	}
 
 	var user model.User
-	if err := db.Where("Email = ? AND password = ?", email,password).First(&user).Error; err != nil {
+
+	if err := db.Preload("Profile").Where("email = ? AND password = ?", email, password).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			log.Println("User not found with the given credentials")
+		}
 		return nil, err
 	}
-
 	return &user, nil
 }
