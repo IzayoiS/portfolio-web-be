@@ -14,6 +14,9 @@ func CreateProfile(c *fiber.Ctx) error {
 	if err := c.BodyParser(&profile); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 	}
+
+	userId := c.Locals("userId").(uint)
+	profile.UserID = userId
 	
 	result, err := service.CreateProfile(&profile)
 	if err != nil {
@@ -36,7 +39,7 @@ func GetProfile(c *fiber.Ctx) error {
 func UpdateProfile(c *fiber.Ctx) error {
 	userID := c.Params("userId")
 
-	// Ambil data profile lama dari DB
+	// Fetch data old profile from DB
 	oldProfile, err := service.GetProfileByUserID(utils.ParseUint(userID))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Profile not found"})
@@ -44,10 +47,10 @@ func UpdateProfile(c *fiber.Ctx) error {
 
 	var oldImagePublicID string
 	if oldProfile.ImageURL != "" {
-		oldImagePublicID = oldProfile.ImageURL
+		oldImagePublicID = utils.ExtractPublicIDFroomURL(oldProfile.ImageURL)
 	}
 
-	// Ambil data dari form (bukan BodyParser karena ini multipart/form-data)
+	// Fetch data from form-data
 	updatedProfile := model.Profile{
 		Name:         c.FormValue("name"),
 		JobTitle:     c.FormValue("job_title"),
@@ -56,7 +59,6 @@ func UpdateProfile(c *fiber.Ctx) error {
 		Availability: c.FormValue("availability"),
 	}
 
-	// Proses upload gambar jika ada
 	fileHeader, err := c.FormFile("image")
 	if err == nil {
 		file, err := fileHeader.Open()
@@ -65,13 +67,13 @@ func UpdateProfile(c *fiber.Ctx) error {
 		}
 		defer file.Close()
 
-		// Upload ke Cloudinary
+		// Upload new image 
 		imageUrl, err := utils.UploadImageToCloudinary(file, fileHeader)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to upload image"})
 		}
 
-		// Hapus gambar lama jika ada
+		// Delete old image from cloudinary 
 		if oldImagePublicID != "" {
 			if err := utils.DeleteImage(oldImagePublicID); err != nil {
 				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete old image"})
@@ -80,64 +82,17 @@ func UpdateProfile(c *fiber.Ctx) error {
 
 		updatedProfile.ImageURL = imageUrl
 	} else {
-		// Jika tidak ada gambar baru, gunakan yang lama
 		updatedProfile.ImageURL = oldProfile.ImageURL
 	}
 
-	// Update profile ke DB
-	updatedProfileData, err := service.UpdateProfile(utils.ParseUint(userID), &updatedProfile, oldImagePublicID)
+	// Save to database
+	updatedProfileData, err := service.UpdateProfile(utils.ParseUint(userID), &updatedProfile)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update profile"})
 	}
 
 	return c.JSON(updatedProfileData)
 }
-
-// func UpdateProfile(c *fiber.Ctx) error {
-// 	userID := c.Params("userId")
-
-// 	var updatedProfile model.Profile
-// 	if err := c.BodyParser(&updatedProfile); err != nil {
-// 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
-// 	}
-
-// 	oldProfile, err := service.GetProfileByUserID(utils.ParseUint(userID))
-// 	if err != nil {
-// 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Profile not found"})
-// 	}
-
-// 	var oldImagePublicID string
-// 	if oldProfile.ImageURL != "" {
-// 		oldImagePublicID = oldProfile.ImageURL
-// 	}
-	
-// 	fileHeader, err := c.FormFile("image")
-// 	if err == nil {
-// 		file, err := fileHeader.Open()
-// 		if err != nil {
-// 			return err
-// 		}
-// 		defer file.Close()
-
-// 		imageUrl, err := utils.UploadImageToCloudinary(file, fileHeader)
-// 		if err != nil {
-// 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to upload image"})
-// 		}
-
-// 		if oldImagePublicID != "" {
-// 			if err := utils.DeleteImage(oldImagePublicID); err != nil {
-// 				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete old image"})
-// 			}
-// 		}
-// 		updatedProfile.ImageURL = imageUrl
-// 	}
-// 	updatedProfileData, err := service.UpdateProfile(utils.ParseUint(userID), &updatedProfile, oldImagePublicID)
-// 	if err != nil {
-// 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update profile"})
-// 	}
-
-// 	return c.JSON(updatedProfileData)
-// }
 
 
 func UploadProfileImage(c *fiber.Ctx) error {

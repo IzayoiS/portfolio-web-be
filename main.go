@@ -17,7 +17,7 @@ func main() {
 	config.LoadEnv()
 	database.Connect()
 
-	if err := database.DB.AutoMigrate(&model.User{}, &model.Profile{}); err != nil {
+	if err := database.DB.AutoMigrate(&model.User{}, &model.Profile{},&model.Experience{},&model.Project{},&model.TechStack{}); err != nil {
         log.Fatal("AutoMigrate failed:", err)
     }
 	log.Println("Database migrated successfully!")
@@ -30,6 +30,10 @@ func main() {
 
 	routes.LoginRoutes(app)
 	routes.ProfileRoute(app)
+	routes.ExperienceRoutes(app)
+	routes.ProjectRoute(app)
+	routes.TechRoutes(app)
+	routes.RegisterRoute(app)
 
 	port := os.Getenv("PORT")
 	

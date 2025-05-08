@@ -13,4 +13,7 @@ type User struct {
 	UpdatedAt time.Time
 
 	Profile  *Profile `gorm:"foreignKey:UserID" json:"profile,omitempty"`
+	Experiences []Experience `json:"experiences,omitempty"`
+	Projects    []Project    `json:"projects,omitempty"`
+	TechStacks  []TechStack  `json:"techstacks,omitempty"`
 }

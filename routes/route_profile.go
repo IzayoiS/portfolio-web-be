@@ -2,12 +2,14 @@ package routes
 
 import (
 	controller "portfolio-web-be/controllers"
+	"portfolio-web-be/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func ProfileRoute(app *fiber.App) {
-	app.Post("/profile",controller.CreateProfile)
-	app.Get("/profile/:userId",controller.GetProfile)
-	app.Patch("/profile/:userId",controller.UpdateProfile)
+func ProfileRoute(router fiber.Router) {
+	profile := router.Group("/profile", middleware.Protected)
+	profile.Post("/",controller.CreateProfile)
+	profile.Get("/:userId",controller.GetProfile)
+	profile.Patch("/:userId",controller.UpdateProfile)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"mime/multipart"
 	"os"
+	"strings"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
@@ -44,4 +45,14 @@ func DeleteImage(publicID string) error {
 		PublicID: publicID,
 	})
 	return err
+}
+
+func ExtractPublicIDFroomURL(url string) string {
+	parts := strings.Split(url, "/")
+	for i, part := range parts  {
+		if part == "upload" && i+1 < len(parts) {
+			return strings.Join(parts[i+1:], "/") 
+		}
+	}
+	return ""
 }

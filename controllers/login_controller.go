@@ -9,7 +9,7 @@ import (
 
 func Login(c *fiber.Ctx) error {
 	type Request struct {
-		Email string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
@@ -18,18 +18,18 @@ func Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 	}
 
-	user, err := service.AuthUser(body.Email, body.Password)
+	user, err := service.LoginUser(body.Email, body.Password)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
 
-	token, err := utils.GenerateToken(user.Email)
+	token, err := utils.GenerateToken(user.ID, user.Email)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Token generation failed"})
 	}
 
 	return c.JSON(fiber.Map{
 		"token": token,
-		"User": user,
+		"user":  user,
 	})
 }
