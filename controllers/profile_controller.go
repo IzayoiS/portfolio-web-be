@@ -47,7 +47,7 @@ func UpdateProfile(c *fiber.Ctx) error {
 
 	var oldImagePublicID string
 	if oldProfile.ImageURL != "" {
-		oldImagePublicID = utils.ExtractPublicIDFroomURL(oldProfile.ImageURL)
+		oldImagePublicID = utils.ExtractPublicIDFromURL(oldProfile.ImageURL)
 	}
 
 	// Fetch data from form-data

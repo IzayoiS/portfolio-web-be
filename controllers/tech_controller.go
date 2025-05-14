@@ -13,3 +13,11 @@ func CreateTechStack(c *fiber.Ctx) error {
 func GetTechStacks(c *fiber.Ctx) error {
 	return service.GetTechStacks(c)
 }
+
+func UpdateTechStacks(c *fiber.Ctx) error {
+	return service.UpdateTech(c)
+}
+
+func DeleteTechStacks(c *fiber.Ctx) error {
+	return service.DeleteTech(c)
+}

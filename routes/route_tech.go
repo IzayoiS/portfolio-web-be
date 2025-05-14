@@ -11,4 +11,6 @@ func TechRoutes(router fiber.Router) {
 	stack := router.Group("/tech", middleware.Protected)
 	stack.Post("/", controller.CreateTechStack)
 	stack.Get("/", controller.GetTechStacks)
+	stack.Patch("/:id", controller.UpdateTechStacks)
+	stack.Delete("/:id", controller.DeleteTechStacks)
 }

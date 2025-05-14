@@ -47,7 +47,7 @@ func DeleteImage(publicID string) error {
 	return err
 }
 
-func ExtractPublicIDFroomURL(url string) string {
+func ExtractPublicIDFromURL(url string) string {
 	parts := strings.Split(url, "/")
 	for i, part := range parts  {
 		if part == "upload" && i+1 < len(parts) {

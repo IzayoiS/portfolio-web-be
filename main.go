@@ -34,6 +34,7 @@ func main() {
 	routes.ProjectRoute(app)
 	routes.TechRoutes(app)
 	routes.RegisterRoute(app)
+	routes.CheckUserRoutes(app)
 
 	port := os.Getenv("PORT")
 	

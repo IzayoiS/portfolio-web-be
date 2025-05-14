@@ -2,17 +2,15 @@ package model
 
 import (
 	"time"
-
-	"github.com/lib/pq"
 )
 
 type Project struct {
-	ID          uint      `gorm:"primaryKey"`
-	ProjectName string	  `json:"project-name"`
-	Descriptions pq.StringArray `gorm:"type:text[]" json:"descriptions"`
-	TechStack   string	  `json:"tech-stack"`
-	LinkGithub  string	  `json:"link-github"`
-	LinkWebsite string	  `json:"link-website"`
+	ID          uint      `gorm:"primaryKey" json:"id"`
+	ProjectName string	  `json:"project_name"`
+	Descriptions string   `json:"descriptions"`
+	TechStack   string	  `json:"tech_stack"`
+	LinkGithub  string	  `json:"link_github"`
+	LinkWebsite string	  `json:"link_website"`
 	Logo        string	  `json:"logo"`
 
 	UserID uint
