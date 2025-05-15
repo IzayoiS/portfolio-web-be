@@ -3,14 +3,14 @@ package model
 import "time"
 
 type Experience struct {
-	ID                uint      `gorm:"primaryKey"`
+	ID                uint      `gorm:"primaryKey" json:"id"`
 	Company           string    `json:"company"`
 	Role              string    `json:"role"`
-	StartMonth        string    `json:"start-month"`
-	StartYear         string    `json:"start-year"`
-	EndMonth          *string    `json:"end-month"`
-	EndYear           *string    `json:"end-year"`
-	IsCurrentlyWorking bool      `json:"currently-working"`
+	StartMonth        string    `json:"start_month"`
+	StartYear         string    `json:"start_year"`
+	EndMonth          *string    `json:"end_month"`
+	EndYear           *string    `json:"end_year"`
+	IsCurrentlyWorking bool      `json:"currently_working"`
 	Descriptions      []string `gorm:"type:text[]" json:"descriptions"`
 	Logo              string    `json:"logo"`
 

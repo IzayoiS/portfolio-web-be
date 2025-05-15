@@ -4,6 +4,8 @@ import (
 	"portfolio-web-be/database"
 	model "portfolio-web-be/models"
 	"portfolio-web-be/utils"
+	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -67,4 +69,112 @@ func GetExperience(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not fetch experiences"})
 	}
 	return c.JSON(experiences)
+}
+
+func UpdateExperience(c *fiber.Ctx) error {
+	expId := c.Params(("id"))
+	userId := c.Locals("userId").(uint)
+
+	id, err := strconv.ParseUint(expId, 10, 32)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid experience ID"})
+	}
+
+	var existingExp model.Experience
+	if err := database.DB.Where("id = ? AND user_id = ?", uint(id), userId).First(&existingExp).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Experience not found or unauthorized"})
+	}
+
+	form ,err := c.MultipartForm()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid form"})
+	}
+
+    isCurrentlyWorking := getFormValue(form, "currently_working") == "true"
+
+    var descriptions []string
+    if descStr := getFormValue(form, "descriptions"); descStr != "" {
+        descriptions = strings.Split(descStr, ",")
+    }
+
+    var endMonth *string
+    if val := getFormValue(form, "end_month"); val != "" {
+        endMonth = &val
+    }
+
+    var endYear *string
+    if val := getFormValue(form, "end_year"); val != "" {
+        endYear = &val
+    }
+
+	updates := model.Experience{
+        Company:  getFormValue(form, "company"),
+        Role: getFormValue(form, "role"),
+        StartMonth:    getFormValue(form, "start_month"),
+        StartYear:   getFormValue(form, "start_year"),
+		EndMonth:           endMonth,
+        EndYear:            endYear,
+        IsCurrentlyWorking: isCurrentlyWorking,
+        Descriptions:       descriptions,
+    }
+	
+	if len(form.File["logo"]) > 0 {
+        logo := form.File["logo"][0]
+        file, err := logo.Open()
+        if err != nil {
+            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
+        }
+        defer file.Close()
+
+        url, err := utils.UploadImageToCloudinary(file, logo)
+        if err != nil {
+            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Upload logo failed"})
+        }
+        updates.Logo = url
+        
+        if existingExp.Logo != "" {
+            publicID := utils.ExtractPublicIDFromURL(existingExp.Logo)
+            if publicID != "" {
+                utils.DeleteImage(publicID)
+            }
+        }
+    } else if logoUrl := getFormValue(form, "logo_url"); logoUrl != "" {
+        updates.Logo = logoUrl
+    }
+
+	if err := database.DB.Model(&existingExp).Updates(updates).Error; err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Update experience failed"})
+    }
+
+	var result model.Experience
+    if err := database.DB.Preload("User").First(&result, existingExp.ID).Error; err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch updated experience"})
+    }
+
+    return c.JSON(result)
+}
+
+func DeleteExperience(c *fiber.Ctx) error {
+	expId := c.Params("id")
+	userId := c.Locals("userId").(uint)
+
+	var exp model.Experience
+    if err := database.DB.Where("id = ? AND user_id = ?", expId, userId).First(&exp).Error; err != nil {
+        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Experience not found"})
+    }
+
+	if exp.Logo != "" {
+        publicID := utils.ExtractPublicIDFromURL(exp.Logo)
+        if publicID != "" {
+            if err := utils.DeleteImage(publicID); err != nil {
+                return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete logo"})
+            }
+        }
+    }
+
+    if err := database.DB.Delete(&exp).Error; err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Delete experience failed"})
+    }
+
+    return c.JSON(fiber.Map{"message": "Experience deleted successfully"})
 }

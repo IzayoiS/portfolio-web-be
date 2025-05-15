@@ -13,3 +13,11 @@ func CreateExperience(c *fiber.Ctx) error {
 func GetExperience(c *fiber.Ctx) error {
 	return service.GetExperience(c)
 }
+
+func UpdateExperience(c *fiber.Ctx) error {
+	return service.UpdateExperience(c)
+}
+
+func DeleteExperience(c *fiber.Ctx) error {
+	return service.DeleteExperience(c)
+}
