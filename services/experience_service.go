@@ -1,13 +1,15 @@
 package service
 
 import (
+	// "encoding/json"
+	"encoding/json"
 	"portfolio-web-be/database"
 	model "portfolio-web-be/models"
 	"portfolio-web-be/utils"
 	"strconv"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/lib/pq"
 )
 
 func CreateExperience(c *fiber.Ctx) error {
@@ -18,15 +20,26 @@ func CreateExperience(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid form data"})
 	}
 
+	var descriptions []string
+	descStr := getFormValue(form, "descriptions")
+	if descStr != "" {
+		if err := json.Unmarshal([]byte(descStr), &descriptions); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid descriptions JSON"})
+		}
+	}
+
+
+	isCurrentlyWorking := form.Value["isCurrentlyWorking"][0] == "true"
 	exp := model.Experience{
 		UserID: 		   userId,
 		Company: 		   form.Value["company"][0],
 		Role:              form.Value["role"][0],
 		StartMonth:        form.Value["startMonth"][0],
 		StartYear:         form.Value["startYear"][0],
-		IsCurrentlyWorking: form.Value["isCurrentlyWorking"][0] == "true",
-		Descriptions:      form.Value["descriptions"],
+		IsCurrentlyWorking: &isCurrentlyWorking,
+		Descriptions:      descriptions,
 	}
+	
 
 	if len(form.Value["endMonth"]) > 0 {
 		exp.EndMonth = &form.Value["endMonth"][0]
@@ -90,13 +103,6 @@ func UpdateExperience(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid form"})
 	}
 
-    isCurrentlyWorking := getFormValue(form, "currently_working") == "true"
-
-    var descriptions []string
-    if descStr := getFormValue(form, "descriptions"); descStr != "" {
-        descriptions = strings.Split(descStr, ",")
-    }
-
     var endMonth *string
     if val := getFormValue(form, "end_month"); val != "" {
         endMonth = &val
@@ -107,6 +113,20 @@ func UpdateExperience(c *fiber.Ctx) error {
         endYear = &val
     }
 
+	var isCurrentlyWorking *bool
+	if val := getFormValue(form, "currently_working"); val != "" {
+		b := val == "true"
+		isCurrentlyWorking = &b
+	}
+	var descriptions []string
+	descStr := getFormValue(form, "descriptions")
+	if descStr != "" {
+		if err := json.Unmarshal([]byte(descStr), &descriptions); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid descriptions JSON"})
+		}
+	}
+
+	
 	updates := model.Experience{
         Company:  getFormValue(form, "company"),
         Role: getFormValue(form, "role"),
@@ -115,7 +135,7 @@ func UpdateExperience(c *fiber.Ctx) error {
 		EndMonth:           endMonth,
         EndYear:            endYear,
         IsCurrentlyWorking: isCurrentlyWorking,
-        Descriptions:       descriptions,
+		Descriptions:       pq.StringArray(descriptions),
     }
 	
 	if len(form.File["logo"]) > 0 {

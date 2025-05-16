@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/lib/pq"
+)
 
 type Experience struct {
 	ID                uint      `gorm:"primaryKey" json:"id"`
@@ -10,8 +14,8 @@ type Experience struct {
 	StartYear         string    `json:"start_year"`
 	EndMonth          *string    `json:"end_month"`
 	EndYear           *string    `json:"end_year"`
-	IsCurrentlyWorking bool      `json:"currently_working"`
-	Descriptions      []string `gorm:"type:text[]" json:"descriptions"`
+	IsCurrentlyWorking *bool      `json:"currently_working"`
+	Descriptions      pq.StringArray `gorm:"type:text[]" json:"descriptions"`
 	Logo              string    `json:"logo"`
 
 	UserID    uint
