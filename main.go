@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"portfolio-web-be/config"
 	"portfolio-web-be/database"
 	model "portfolio-web-be/models"
 	"portfolio-web-be/routes"
@@ -13,6 +14,7 @@ import (
 )
 
 func main() {
+	config.LoadEnv()
 	database.Connect()
 
 	if err := database.DB.AutoMigrate(&model.User{}, &model.Profile{},&model.Experience{},&model.Project{},&model.TechStack{}); err != nil {
