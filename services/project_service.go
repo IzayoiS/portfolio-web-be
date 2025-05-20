@@ -60,7 +60,6 @@ func CreateProject(c *fiber.Ctx) error {
 	return c.JSON(result)
 }
 
-
 func GetProject(c *fiber.Ctx) error {
 	userId := c.Locals("userId").(uint)
 	var projects []model.Project

@@ -28,10 +28,10 @@ func CreateExperience(c *fiber.Ctx) error {
 		}
 	}
 
-
 	isCurrentlyWorking := form.Value["isCurrentlyWorking"][0] == "true"
 	exp := model.Experience{
 		UserID: 		   userId,
+		TechStack: 		   form.Value["tech_stack"][0],
 		Company: 		   form.Value["company"][0],
 		Role:              form.Value["role"][0],
 		StartMonth:        form.Value["startMonth"][0],
@@ -39,7 +39,6 @@ func CreateExperience(c *fiber.Ctx) error {
 		IsCurrentlyWorking: &isCurrentlyWorking,
 		Descriptions:      descriptions,
 	}
-	
 
 	if len(form.Value["endMonth"]) > 0 {
 		exp.EndMonth = &form.Value["endMonth"][0]
@@ -126,9 +125,9 @@ func UpdateExperience(c *fiber.Ctx) error {
 		}
 	}
 
-	
 	updates := model.Experience{
         Company:  getFormValue(form, "company"),
+        TechStack:  getFormValue(form, "tech_stack"),
         Role: getFormValue(form, "role"),
         StartMonth:    getFormValue(form, "start_month"),
         StartYear:   getFormValue(form, "start_year"),
