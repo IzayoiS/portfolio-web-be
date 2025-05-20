@@ -61,9 +61,8 @@ func CreateProject(c *fiber.Ctx) error {
 }
 
 func GetProject(c *fiber.Ctx) error {
-	userId := c.Locals("userId").(uint)
 	var projects []model.Project
-	if err := database.DB.Preload("User").Where("user_id = ?", userId).Find(&projects).Error; err != nil {
+	if err := database.DB.Preload("User").Find(&projects).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Fetch projects failed"})
 	}
 	return c.JSON(projects)

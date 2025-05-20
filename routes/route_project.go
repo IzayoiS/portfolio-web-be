@@ -8,9 +8,9 @@ import (
 )
 
 func ProjectRoute(router fiber.Router) {
-	project := router.Group("/project", middleware.Protected)
-	project.Post("/", controller.CreateProject)
+	project := router.Group("/project")
+	project.Post("/",middleware.Protected, controller.CreateProject)
 	project.Get("/", controller.GetProject)
-	project.Patch("/:id", controller.UpdateProject)
-	project.Delete("/:id", controller.DeleteProject)
+	project.Patch("/:id",middleware.Protected, controller.UpdateProject)
+	project.Delete("/:id",middleware.Protected, controller.DeleteProject)
 }

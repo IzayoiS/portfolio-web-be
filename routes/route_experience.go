@@ -8,9 +8,9 @@ import (
 )
 
 func ExperienceRoutes(router fiber.Router) {
-	exp := router.Group("/experience", middleware.Protected)
-	exp.Post("/", controller.CreateExperience)
+	exp := router.Group("/experience")
+	exp.Post("/",middleware.Protected, controller.CreateExperience)
 	exp.Get("/", controller.GetExperience)
-	exp.Patch("/:id", controller.UpdateExperience)
-	exp.Delete("/:id", controller.DeleteExperience)
+	exp.Patch("/:id",middleware.Protected, controller.UpdateExperience)
+	exp.Delete("/:id",middleware.Protected, controller.DeleteExperience)
 }

@@ -52,9 +52,8 @@ func CreateTechStack(c *fiber.Ctx) error {
 
 
 func GetTechStacks(c *fiber.Ctx) error {
-	userId := c.Locals("userId").(uint)
 	var stacks []model.TechStack
-	if err := database.DB.Preload("User").Where("user_id = ?", userId).Find(&stacks).Error; err != nil {
+	if err := database.DB.Preload("User").Find(&stacks).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Fetch tech stacks failed"})
 	}
 	return c.JSON(stacks)

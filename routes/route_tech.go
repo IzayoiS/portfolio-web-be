@@ -8,9 +8,9 @@ import (
 )
 
 func TechRoutes(router fiber.Router) {
-	stack := router.Group("/tech", middleware.Protected)
-	stack.Post("/", controller.CreateTechStack)
+	stack := router.Group("/tech")
+	stack.Post("/",middleware.Protected, controller.CreateTechStack)
 	stack.Get("/", controller.GetTechStacks)
-	stack.Patch("/:id", controller.UpdateTechStacks)
-	stack.Delete("/:id", controller.DeleteTechStacks)
+	stack.Patch("/:id",middleware.Protected, controller.UpdateTechStacks)
+	stack.Delete("/:id",middleware.Protected, controller.DeleteTechStacks)
 }

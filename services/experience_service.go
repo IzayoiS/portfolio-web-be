@@ -75,9 +75,8 @@ func CreateExperience(c *fiber.Ctx) error {
 }
 
 func GetExperience(c *fiber.Ctx) error {
-	userId := c.Locals("userId").(uint)
 	var experiences []model.Experience
-	if err := database.DB.Preload("User").Where("user_id = ?", userId).Find(&experiences).Error; err != nil {
+	if err := database.DB.Preload("User").Find(&experiences).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not fetch experiences"})
 	}
 	return c.JSON(experiences)
