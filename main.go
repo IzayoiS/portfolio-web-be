@@ -24,7 +24,7 @@ func main() {
 	
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
-        AllowOrigins: "http://localhost:3000, https://portfolio-iqbals.vercel.app/", 
+        AllowOrigins: "http://localhost:3000, https://portfolio-iqbals.vercel.app", 
         AllowHeaders: "Origin, Content-Type, Accept, Authorization",
     }))
 
