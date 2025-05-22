@@ -7,6 +7,8 @@ type Profile struct {
 	UserID       uint   `gorm:"uniqueIndex" json:"user_id"`
 	Name         string `json:"name"`
 	JobTitle     string `json:"job_title"`
+	PhoneNumber  string `json:"phone"`
+	Email  string `json:"email"`
 	Bio          string `json:"bio"`
 	Location     string `json:"location"`
 	Availability string `json:"availability"`

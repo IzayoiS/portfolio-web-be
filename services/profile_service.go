@@ -30,7 +30,9 @@ func UpdateProfile(userID uint, updated *model.Profile) (*model.Profile, error) 
 	err := database.DB.Model(&profile).Updates(model.Profile{
 		Name:         updated.Name,
 		JobTitle:     updated.JobTitle,
+		PhoneNumber: updated.PhoneNumber,
 		Bio:          updated.Bio,
+		Email:        updated.Email,
 		Location:     updated.Location,
 		Availability: updated.Availability,
 		ImageURL:     updated.ImageURL,

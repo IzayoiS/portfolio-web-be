@@ -55,6 +55,8 @@ func UpdateProfile(c *fiber.Ctx) error {
 		Name:         c.FormValue("name"),
 		JobTitle:     c.FormValue("job_title"),
 		Bio:          c.FormValue("bio"),
+		Email:          c.FormValue("email"),
+		PhoneNumber:  c.FormValue("phone"),
 		Location:     c.FormValue("location"),
 		Availability: c.FormValue("availability"),
 	}
