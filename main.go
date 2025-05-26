@@ -26,6 +26,10 @@ func main() {
         AllowHeaders: "Origin, Content-Type, Accept, Authorization",
     }))
 
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World!")
+	})
+
 	routes.LoginRoutes(app)
 	routes.ProfileRoute(app)
 	routes.ExperienceRoutes(app)
