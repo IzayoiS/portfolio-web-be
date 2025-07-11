@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"portfolio-web-be/config"
 	"portfolio-web-be/database"
 	model "portfolio-web-be/models"
 	"portfolio-web-be/routes"
@@ -13,6 +14,7 @@ import (
 )
 
 func main() {
+	config.LoadEnv()
 	database.Connect()
 
 	if err := database.DB.AutoMigrate(&model.User{}, &model.Profile{},&model.Experience{},&model.Project{},&model.TechStack{}); err != nil {
@@ -22,7 +24,7 @@ func main() {
 	
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
-        AllowOrigins: "http://localhost:3000,https://portfolio-iqbals.vercel.app,https://portfolio-web-be.onrender.com", 
+        AllowOrigins: "http://localhost:3000,https://portfolio-iqbals.vercel.app,https://portfolio-web-be.onrender.com,https://portfolio-webiste-iqbal.vercel.app", 
         AllowHeaders: "Origin, Content-Type, Accept, Authorization",
     }))
 
